@@ -6,7 +6,7 @@ import numpy as np
 
 
 async def send_text_and_receive_frames():
-    uri = "ws://localhost:8000/ws"  # Connect to the text WebSocket
+    uri = "ws://192.168.0.172:8000/ws"  # Connect to the text WebSocket
     async with websockets.connect(uri) as websocket:
         while True:
             # text = input("Enter text to send: ")  # Get user input

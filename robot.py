@@ -6,9 +6,9 @@ import json
 
 
 async def send_frames_and_receive_text():
-    uri = "ws://localhost:8000/ws"  # Connect to the video WebSocket
+    uri = "ws://192.168.0.172:8000/ws"  # Connect to the video WebSocket
     async with websockets.connect(uri) as websocket:
-        cap = cv2.VideoCapture(1)  # Open the default webcam
+        cap = cv2.VideoCapture(0)  # Open the default webcam
 
         while True:
             ret, frame = cap.read()  # Capture frame from the webcam
@@ -29,6 +29,7 @@ async def send_frames_and_receive_text():
                 text_message = (
                     await websocket.recv()
                 )  # Receive JSON text message from server
+                # send signal here
                 print(f"Received text message: {text_message}")
             except Exception as e:
                 print(f"Error receiving message: {e}")
