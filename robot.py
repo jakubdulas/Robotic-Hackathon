@@ -7,7 +7,7 @@ import socket
 
 
 async def send_frames_and_receive_text():
-    uri = "ws://192.168.0.172:8000/ws"  # Connect to the video WebSocket
+    uri = "ws://192.168.0.114:8000/ws"  # Connect to the video WebSocket
     async with websockets.connect(uri) as websocket:
         cap = cv2.VideoCapture(0)  # Open the default webcam
 
@@ -26,25 +26,17 @@ async def send_frames_and_receive_text():
             await websocket.send(frame_base64)  # Send frame to the server
 
             # Receive text messages
-            try:
-                text_message = (
-                    await websocket.recv()
-                )  # Receive JSON text message from server
-                # send signal here
-                print(f"Received text message: {text_message}")
-            except Exception as e:
-                print(f"Error receiving message: {e}")
+            # try:
+            #     text_message = (
+            #         await websocket.recv()
+            #     )  # Receive JSON text message from server
+            #     # send signal here
+            #     print(f"Received text message: {text_message}")
+            # except Exception as e:
+            #     print(f"Error receiving message: {e}")
 
         cap.release()  # Release the webcam when done
 
 
 if __name__ == "__main__":
-
-    esp_ip = "192.168.0.115"
-    port = 80
-
-    # Utwórz połączenie socket
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((esp_ip, port))
-
     asyncio.run(send_frames_and_receive_text())
