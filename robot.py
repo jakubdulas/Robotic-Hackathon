@@ -3,6 +3,7 @@ import asyncio
 import websockets
 import base64
 import json
+import socket
 
 
 async def send_frames_and_receive_text():
@@ -38,4 +39,12 @@ async def send_frames_and_receive_text():
 
 
 if __name__ == "__main__":
+
+    esp_ip = "192.168.0.115"
+    port = 80
+
+    # Utwórz połączenie socket
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((esp_ip, port))
+
     asyncio.run(send_frames_and_receive_text())
