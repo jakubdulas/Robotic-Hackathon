@@ -1,4 +1,4 @@
-using System; 
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -19,8 +19,9 @@ public class NewBehaviourScript : MonoBehaviour
         texture = new Texture2D(2, 2);
 
         ws = new WebSocket("ws://192.168.0.171:8000/ws");
-        
-        ws.OnMessage += (bytes) => {
+
+        ws.OnMessage += (bytes) =>
+        {
             texture.LoadImage(bytes);
             isTextureUpdated = true;
         };
@@ -36,22 +37,23 @@ public class NewBehaviourScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        #if !UNITY_WEBGL || UNITY_EDITOR
+#if !UNITY_WEBGL || UNITY_EDITOR
         ws?.DispatchMessageQueue();
-        #endif
+#endif
 
-        if (isTextureUpdated){
+        if (isTextureUpdated)
+        {
             panel.GetComponent<Renderer>().material.mainTexture = texture;
             isTextureUpdated = false;
         }
-        
+
     }
 
-    async void OnApplicationQuit() {
-        if (ws != null) {
+    async void OnApplicationQuit()
+    {
+        if (ws != null)
+        {
             await ws.Close();
         }
     }
 }
-
-This paste expires in <1 hour. Public IP access. Share whatever you see with others in seconds with Context.Terms of ServiceReport this
