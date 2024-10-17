@@ -34,16 +34,41 @@ async def get():
     )
 
 
+# @app.websocket("/ws")
+# async def video_websocket(websocket: WebSocket):
+#     await websocket.accept()
+#     clients.append(websocket)
+#     try:
+#         while True:
+#             data = await websocket.receive_text()  # Expecting frames in base64
+#             for client in clients:
+#                 if client is not websocket:
+#                     await client.send_text(data)  # Send the frame to other clients
+#     except Exception as e:
+#         print(f"Connection closed: {e}")
+#     finally:
+#         clients.remove(websocket)
+
+
 @app.websocket("/ws")
 async def video_websocket(websocket: WebSocket):
     await websocket.accept()
     clients.append(websocket)
     try:
         while True:
-            data = await websocket.receive_text()  # Expecting frames in base64
+            message = await websocket.receive()  # Can handle both text and binary
+            if "text" in message:
+                data = message["text"]  # Handle text (base64 frames)
+            elif "bytes" in message:
+                data = message["bytes"]  # Handle binary data (e.g., raw images)
+
+            # Forward the message to other clients
             for client in clients:
                 if client is not websocket:
-                    await client.send_text(data)  # Send the frame to other clients
+                    if "text" in message:
+                        await client.send_text(data)
+                    elif "bytes" in message:
+                        await client.send_bytes(data)
     except Exception as e:
         print(f"Connection closed: {e}")
     finally:
@@ -53,4 +78,4 @@ async def video_websocket(websocket: WebSocket):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="192.168.0.114", port=8000)
+    uvicorn.run(app, host="192.168.0.171", port=8000)

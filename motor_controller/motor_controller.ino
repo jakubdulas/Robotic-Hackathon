@@ -72,7 +72,7 @@ void Head_Move(int val)
   // Ensure the value is within the servo's limits
   head_pos = constrain(val, 0, 180);
   headServo.write(head_pos); // Move the head servo
-  Serial.print("Head moved to position: ");
+  Serial.print("Head mozed to position: ");
   Serial.println(head_pos);
 }
 

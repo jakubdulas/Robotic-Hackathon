@@ -4,26 +4,36 @@ import websockets
 import base64
 import json
 import socket
+import time
+
+FRAME_RATE = 30  # Target 10 FPS
 
 
 async def send_frames_and_receive_text():
-    uri = "ws://192.168.0.114:8000/ws"  # Connect to the video WebSocket
+    uri = "ws://192.168.0.171:8000/ws"  # Connect to the video WebSocket
     async with websockets.connect(uri) as websocket:
-        cap = cv2.VideoCapture(0)  # Open the default webcam
+        cap = cv2.VideoCapture(1)  # Open the default webcam
 
         while True:
-            ret, frame = cap.read()  # Capture frame from the webcam
+            start_time = time.time()
+
+            ret, frame = cap.read()
             if not ret:
-                print("Failed to capture frame")
-                break
+                continue
 
             # Encode the frame as JPEG
             _, buffer = cv2.imencode(".jpg", frame)
-            frame_base64 = base64.b64encode(buffer).decode(
-                "utf-8"
-            )  # Convert frame to base64 string
 
-            await websocket.send(frame_base64)  # Send frame to the server
+            await websocket.send(buffer.tobytes())
+
+            # frame_base64 = base64.b64encode(buffer).decode(
+            #     "utf-8"
+            # )  # Convert frame to base64 string
+            # await websocket.send(frame_base64)  # Send frame to the server
+
+            elapsed_time = time.time() - start_time
+            if elapsed_time < 1.0 / FRAME_RATE:
+                time.sleep(1.0 / FRAME_RATE - elapsed_time)
 
             # Receive text messages
             # try:
@@ -32,8 +42,8 @@ async def send_frames_and_receive_text():
             #     )  # Receive JSON text message from server
             #     # send signal here
             #     print(f"Received text message: {text_message}")
-            # except Exception as e:
-            #     print(f"Error receiving message: {e}")
+            # except ExceptionError as e:
+            #     print(f" receiving message: {e}")
 
         cap.release()  # Release the webcam when done
 
