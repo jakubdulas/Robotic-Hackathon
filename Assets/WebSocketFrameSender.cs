@@ -15,8 +15,14 @@ public class WebSocketFrameSender : MonoBehaviour
     // Frame capture interval (in seconds)
     public float frameCaptureInterval = 0.1f;
 
+    // Constant target frame rate
+    public int targetFrameRate = 30; // Set this to your desired frame rate
+
     async void Start()
     {
+        // Set the target frame rate
+        Application.targetFrameRate = targetFrameRate;
+
         websocket = new WebSocket("ws://192.168.0.171:8765");
 
         websocket.OnOpen += () => Debug.Log("Connection open!");
