@@ -52,6 +52,7 @@ void setup()
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+
   server.begin();
 }
 
@@ -98,6 +99,7 @@ void loop()
     String currentLine = "";
     while (client.connected())
     {
+      Serial.println("Client connected \n");
       if (client.available())
       {
         char c = client.read();
