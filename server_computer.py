@@ -20,7 +20,7 @@ async def receive_frames(websocket, path):
 
 
 async def main():
-    async with websockets.serve(receive_frames, "192.168.0.171", 8765):
+    async with websockets.serve(receive_frames, "192.168.0.153", 8765):
         await asyncio.Future()  # Keep the server running
 
 

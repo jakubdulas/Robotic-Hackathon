@@ -18,16 +18,16 @@ public class WebSocketFrameSender : MonoBehaviour
 
         // Open connection
         await websocket.Connect();
-        
-        // Start sending frames
-        StartCoroutine(SendFrameCoroutine());
+
+        // Start the frame capture coroutine
+        StartCoroutine(CaptureFramesCoroutine());
     }
 
-    private IEnumerator SendFrameCoroutine()
+    private IEnumerator CaptureFramesCoroutine()
     {
         while (true)
         {
-            yield return new WaitForSeconds(0.1f);  // Adjust as necessary
+            yield return new WaitForSeconds(0.1f);  // Adjust the frequency as needed
 
             // Capture frame
             RenderTexture renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
@@ -39,17 +39,34 @@ public class WebSocketFrameSender : MonoBehaviour
             playerCamera.targetTexture = null;
             RenderTexture.active = null;
 
-            // Convert to byte array
+            // Encode the frame as PNG
             byte[] imageBytes = screenShot.EncodeToPNG();
 
-            // Send the image over WebSocket
+            // Send the frame via WebSocket (in an async task)
             if (websocket.State == WebSocketState.Open)
             {
-                await websocket.Send(imageBytes);
+                // Call the async method for sending the frame
+                _ = SendFrameAsync(imageBytes);
             }
 
             Destroy(screenShot);
             Destroy(renderTexture);
+        }
+    }
+
+    // Async method to send the frame over WebSocket
+    private async System.Threading.Tasks.Task SendFrameAsync(byte[] imageBytes)
+    {
+        try
+        {
+            if (websocket.State == WebSocketState.Open)
+            {
+                await websocket.Send(imageBytes);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("Error sending frame: " + e.Message);
         }
     }
 
