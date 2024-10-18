@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using NativeWebSocket;
 
@@ -41,7 +42,7 @@ public class WebSocketFrameSender : MonoBehaviour
             // Encode to PNG
             byte[] imageBytes = screenShot.EncodeToPNG();
 
-            // Send the frame (call async method without awaiting)
+            // Send the frame using the async method
             _ = SendFrameAsync(imageBytes); // Fire and forget
 
             Destroy(screenShot);
@@ -50,7 +51,7 @@ public class WebSocketFrameSender : MonoBehaviour
     }
 
     // Async method to send the frame over WebSocket
-    private async System.Threading.Tasks.Task SendFrameAsync(byte[] imageBytes)
+    private async Task SendFrameAsync(byte[] imageBytes)
     {
         if (websocket.State == WebSocketState.Open)
         {
