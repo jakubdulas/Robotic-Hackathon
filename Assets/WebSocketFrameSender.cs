@@ -8,6 +8,13 @@ public class WebSocketFrameSender : MonoBehaviour
     public Camera playerCamera;
     private WebSocket websocket;
 
+    // Cached RenderTexture and Texture2D
+    private RenderTexture renderTexture;
+    private Texture2D screenShot;
+
+    // Frame capture interval (in seconds)
+    public float frameCaptureInterval = 0.1f;
+
     async void Start()
     {
         websocket = new WebSocket("ws://192.168.0.171:8765");
@@ -19,6 +26,10 @@ public class WebSocketFrameSender : MonoBehaviour
         // Open the WebSocket connection
         await websocket.Connect();
 
+        // Initialize RenderTexture and Texture2D once
+        renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
+        screenShot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+
         // Start capturing frames
         StartCoroutine(CaptureFramesCoroutine());
     }
@@ -27,12 +38,10 @@ public class WebSocketFrameSender : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(0.1f); // Adjust the frame capture interval
+            yield return new WaitForSeconds(frameCaptureInterval); // Adjust the frame capture interval
 
             // Capture the frame
-            RenderTexture renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
             playerCamera.targetTexture = renderTexture;
-            Texture2D screenShot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
             playerCamera.Render();
             RenderTexture.active = renderTexture;
             screenShot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
@@ -44,9 +53,6 @@ public class WebSocketFrameSender : MonoBehaviour
 
             // Send the frame using the async method
             _ = SendFrameAsync(imageBytes); // Fire and forget
-
-            Destroy(screenShot);
-            Destroy(renderTexture);
         }
     }
 
@@ -69,5 +75,8 @@ public class WebSocketFrameSender : MonoBehaviour
     async void OnApplicationQuit()
     {
         await websocket.Close();
+        // Clean up resources
+        if (renderTexture != null) RenderTexture.ReleaseTemporary(renderTexture);
+        if (screenShot != null) Destroy(screenShot);
     }
 }
