@@ -4,6 +4,13 @@
 const char *ssid = "hackathon_2024";
 const char *password = "hackathon_2024";
 
+// Define static IP, gateway, and subnet
+IPAddress ip(192, 168, 0, 199);
+IPAddress gateway(192,168,0,1);
+IPAddress subnet(255, 255, 255, 0);
+IPAddress dns(192, 168, 1, 254); //primaryDNS
+
+
 WiFiServer server(80);
 
 #define HEAD 3  // Pin for head servo
@@ -12,7 +19,8 @@ WiFiServer server(80);
 #define M_L2 6  // Going backwards, left front, right back
 #define M_R1 9  // Going towards, left back, right front
 #define M_R2 10 // Going backwards, left back, right front
-#define S 50
+#define V 70
+#define HT_V 1
 
 Servo headServo; // Create Servo object for head
 Servo tailServo; // Create Servo object for tail
@@ -20,7 +28,9 @@ Servo tailServo; // Create Servo object for tail
 int pwm;
 int inkey;
 int tail_pos = 0;
-int head_pos = 90; // Initial head position
+int head_pos = 90;             // Initial head position
+bool head_moving_right = true; // Direction of head movement
+bool tail_moving_right = true; // Direction of tail movement
 
 void setup()
 {
@@ -43,12 +53,16 @@ void setup()
 
   Serial.print("Connecting to ");
   Serial.println(ssid);
+  WiFi.config(ip, dns, gateway, subnet); 
+
   WiFi.begin(ssid, password);
+
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
   }
+
   Serial.println("");
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
@@ -74,8 +88,6 @@ void Head_Move(int val)
   // Ensure the value is within the servo's limits
   head_pos = constrain(val, 0, 180);
   headServo.write(head_pos); // Move the head servo
-  Serial.print("Head mozed to position: ");
-  Serial.println(head_pos);
 }
 
 void Tail_Move(int val)
@@ -83,8 +95,51 @@ void Tail_Move(int val)
   // Ensure the value is within the servo's limits
   tail_pos = constrain(val, 0, 180);
   tailServo.write(tail_pos); // Move the tail servo
-  Serial.print("Tail moved to position: ");
-  Serial.println(tail_pos);
+}
+
+void moveHeadAndTail()
+{
+  // Move head
+  if (head_moving_right)
+  {
+    head_pos += HT_V; // Move right
+    if (head_pos >= 180)
+    {
+      head_pos = 180;            // Limit to max position
+      head_moving_right = false; // Change direction
+    }
+  }
+  else
+  {
+    head_pos -= HT_V; // Move left
+    if (head_pos <= 0)
+    {
+      head_pos = 0;             // Limit to min position
+      head_moving_right = true; // Change direction
+    }
+  }
+  Head_Move(head_pos);
+
+  // Move tail
+  if (tail_moving_right)
+  {
+    tail_pos += HT_V; // Move right
+    if (tail_pos >= 70)
+    {
+      tail_pos = 70;             // Limit to max position
+      tail_moving_right = false; // Change direction
+    }
+  }
+  else
+  {
+    tail_pos -= HT_V; // Move left
+    if (tail_pos <= 0)
+    {
+      tail_pos = 0;             // Limit to min position
+      tail_moving_right = true; // Change direction
+    }
+  }
+  Tail_Move(tail_pos);
 }
 
 void loop()
@@ -117,67 +172,31 @@ void loop()
           Serial.println(request.indexOf("w"));
           if (c == 'w')
           {
-            Moter_Control(S, 0, S, 0); // front
+            Moter_Control(V, 0, V, 0); // front
           }
           else if (c == 's')
           {
-            Moter_Control(0, S, 0, S); // back
+            Moter_Control(0, V, 0, V); // back
           }
           else if (c == 'd')
           {
-            Moter_Control(S, 0, 0, S); // left
+            Moter_Control(0, 0, V, 0);
           }
           else if (c == 'a')
           {
-            Moter_Control(0, S, S, 0); // right
-          }
-          else if (c == 'q')
-          {
-            Moter_Control(S, 0, 0, S); // left 360
-          }
-          else if (c == 'e')
-          {
-            Moter_Control(S, 0, 0, S); // right 36z0
+            Moter_Control(V, 0, 0, 0); // left
           }
           else if (c == 'z')
           {
             Moter_Control(0, 0, 0, 0); // stop
           }
-          else if (c == 'k')
+          else if (c == 'q')
           {
-            head_pos += 10;
-            Head_Move(head_pos);
+            Moter_Control(V, 0, 0, V); // left
           }
-          else if (c == 'l')
+          else if (c == 'e')
           {
-            head_pos -= 10;
-            Head_Move(head_pos);
-          }
-          else if (c == 'n') // Control tail movement
-          {
-            tail_pos += 10;
-            Tail_Move(tail_pos);
-          }
-          else if (c == 'm')
-          {
-            tail_pos -= 10;
-            Tail_Move(tail_pos);
-          }
-          else if (c == '1')
-          {
-            Moter_Control(S, 0, 0, 0);
-          }
-          else if (c == '2')
-          {
-            Moter_Control(0, S, 0, 0);
-          }
-          else if (c == '3')
-          {
-            Moter_Control(0, 0, S, 0);
-          }
-          else if (c == '4')
-          {
-            Moter_Control(0, 0, 0, S);
+            Moter_Control(0, V, V, 0); // right
           }
         }
         else
@@ -185,6 +204,7 @@ void loop()
           currentLine = "";
         }
       }
+      moveHeadAndTail();
     }
     request = "";
     Moter_Control(0, 0, 0, 0); // stop

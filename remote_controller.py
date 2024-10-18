@@ -17,7 +17,7 @@ def on_press(key, client_socket):
 
 if __name__ == "__main__":
     # Ustaw adres IP ESP8266 i port, na którym działa serwer (zdefiniowany w Arduino)
-    esp_ip = "192.168.0.119"
+    esp_ip = "192.168.0.199"
     port = 80
 
     # Utwórz połączenie socket
