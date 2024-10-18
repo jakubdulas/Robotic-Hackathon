@@ -33,13 +33,6 @@ async def send_frames_and_receive_text():
                     if elapsed_time < 1.0 / FRAME_RATE:
                         time.sleep(1.0 / FRAME_RATE - elapsed_time)
 
-                    # Optionally receive text messages
-                    # try:
-                    #     text_message = await websocket.recv()
-                    #     print(f"Received text message: {text_message}")
-                    # except ExceptionError as e:
-                    #     print(f"Error receiving message: {e}")
-
                 cap.release()  # Release the webcam when done
         except websockets.exceptions.ConnectionClosedError as e:
             print(f"Connection closed: {e}. Reconnecting...")
