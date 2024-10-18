@@ -2,8 +2,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 import cv2
-import numpy as np
-import base64
+import time
 import asyncio
 
 app = FastAPI()
@@ -22,6 +21,9 @@ app.add_middleware(
 
 # Store connected clients
 clients = []
+
+FRAME_RATE = 20
+FRAME_DELAY = 1 / FRAME_RATE  # Calculate delay based on the frame rate
 
 
 @app.get("/")
@@ -47,6 +49,7 @@ async def video_websocket(websocket: WebSocket):
     clients.append(websocket)
     try:
         while True:
+            start_time = time.time()
             ret, frame = cap.read()  # Capture a frame from the webcam
             if not ret:
                 break
@@ -57,6 +60,10 @@ async def video_websocket(websocket: WebSocket):
             # Send the frame bytes to all connected clients
             for client in clients:
                 await client.send_bytes(frame_bytes)
+
+            await asyncio.sleep(
+                FRAME_DELAY - (time.time() - start_time)
+            )  # Control frame rate based on the constant
 
             # await asyncio.sleep(0.03)  # Control frame rate
     except Exception as e:

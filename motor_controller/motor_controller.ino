@@ -12,6 +12,7 @@ WiFiServer server(80);
 #define M_L2 6  // Going backwards, left front, right back
 #define M_R1 9  // Going towards, left back, right front
 #define M_R2 10 // Going backwards, left back, right front
+#define S 50
 
 Servo headServo; // Create Servo object for head
 Servo tailServo; // Create Servo object for tail
@@ -99,7 +100,6 @@ void loop()
     String currentLine = "";
     while (client.connected())
     {
-      Serial.println("Client connected \n");
       if (client.available())
       {
         char c = client.read();
@@ -117,27 +117,27 @@ void loop()
           Serial.println(request.indexOf("w"));
           if (c == 'w')
           {
-            Moter_Control(50, 0, 50, 0); // front
+            Moter_Control(S, 0, S, 0); // front
           }
           else if (c == 's')
           {
-            Moter_Control(0, 50, 0, 50); // back
+            Moter_Control(0, S, 0, S); // back
           }
           else if (c == 'd')
           {
-            Moter_Control(0, 50, 50, 0); // right
+            Moter_Control(S, 0, 0, S); // left
           }
           else if (c == 'a')
           {
-            Moter_Control(50, 0, 0, 50); // left
+            Moter_Control(0, S, S, 0); // right
           }
           else if (c == 'q')
           {
-            Moter_Control(50, 0, 0, 50); // left 360
+            Moter_Control(S, 0, 0, S); // left 360
           }
           else if (c == 'e')
           {
-            Moter_Control(50, 0, 0, 50); // right 36z0
+            Moter_Control(S, 0, 0, S); // right 36z0
           }
           else if (c == 'z')
           {
@@ -165,19 +165,19 @@ void loop()
           }
           else if (c == '1')
           {
-            Moter_Control(50, 0, 0, 0);
+            Moter_Control(S, 0, 0, 0);
           }
           else if (c == '2')
           {
-            Moter_Control(0, 50, 0, 0);
+            Moter_Control(0, S, 0, 0);
           }
           else if (c == '3')
           {
-            Moter_Control(0, 0, 50, 0);
+            Moter_Control(0, 0, S, 0);
           }
           else if (c == '4')
           {
-            Moter_Control(0, 0, 0, 50);
+            Moter_Control(0, 0, 0, S);
           }
         }
         else
