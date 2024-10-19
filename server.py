@@ -50,22 +50,18 @@ async def video_websocket(websocket: WebSocket):
     try:
         while True:
             start_time = time.time()
-            ret, frame = cap.read()  # Capture a frame from the webcam
+            ret, frame = cap.read()
             if not ret:
                 break
 
-            _, buffer = cv2.imencode(".jpg", frame)  # Encode the frame to JPEG
-            frame_bytes = buffer.tobytes()  # Convert to bytes
+            _, buffer = cv2.imencode(".jpg", frame)
+            frame_bytes = buffer.tobytes()
 
-            # Send the frame bytes to all connected clients
             for client in clients:
                 await client.send_bytes(frame_bytes)
 
-            await asyncio.sleep(
-                FRAME_DELAY - (time.time() - start_time)
-            )  # Control frame rate based on the constant
+            await asyncio.sleep(FRAME_DELAY - (time.time() - start_time))
 
-            # await asyncio.sleep(0.03)  # Control frame rate
     except Exception as e:
         print(f"Connection closed: {e}")
     finally:

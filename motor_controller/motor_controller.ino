@@ -6,10 +6,9 @@ const char *password = "hackathon_2024";
 
 // Define static IP, gateway, and subnet
 IPAddress ip(192, 168, 0, 199);
-IPAddress gateway(192,168,0,1);
+IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
-IPAddress dns(192, 168, 1, 254); //primaryDNS
-
+IPAddress dns(192, 168, 1, 254); // primaryDNS
 
 WiFiServer server(80);
 
@@ -53,7 +52,7 @@ void setup()
 
   Serial.print("Connecting to ");
   Serial.println(ssid);
-  WiFi.config(ip, dns, gateway, subnet); 
+  WiFi.config(ip, dns, gateway, subnet);
 
   WiFi.begin(ssid, password);
 
